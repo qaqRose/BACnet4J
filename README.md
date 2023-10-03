@@ -5,6 +5,8 @@ BACnet4J is a pure Java implementation of the BACnet specification. Originally d
 
 A discussion forum for this package can be found at http://infiniteautomation.com/forum/category/12/bacnet4j-general-discussion.
 
+**Commercial licenses are available by contacting: sales@radixiot.com**
+
 A public Maven Repository is now available with the latest builds add this to your pom.xml
 
 
