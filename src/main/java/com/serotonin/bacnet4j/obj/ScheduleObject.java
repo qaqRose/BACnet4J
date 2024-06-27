@@ -74,6 +74,7 @@ import com.serotonin.bacnet4j.type.enumerated.PropertyIdentifier;
 import com.serotonin.bacnet4j.type.enumerated.Reliability;
 import com.serotonin.bacnet4j.type.primitive.Boolean;
 import com.serotonin.bacnet4j.type.primitive.Date;
+import com.serotonin.bacnet4j.type.primitive.Null;
 import com.serotonin.bacnet4j.type.primitive.ObjectIdentifier;
 import com.serotonin.bacnet4j.type.primitive.Primitive;
 import com.serotonin.bacnet4j.type.primitive.UnsignedInteger;
@@ -187,7 +188,7 @@ public class ScheduleObject extends BACnetObject {
             final BACnetArray<DailySchedule> weeklySchedule = value.getValue();
             for (final DailySchedule daily : weeklySchedule) {
                 for (final TimeValue timeValue : daily.getDaySchedule()) {
-                    if (scheduleDefault.getClass() != timeValue.getValue().getClass()) {
+                    if (!timeValue.getValue().getClass().equals(Null.class) && scheduleDefault.getClass() != timeValue.getValue().getClass()) {
                         throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
                     }
                     if (!timeValue.getTime().isFullySpecified()) {
@@ -201,7 +202,7 @@ public class ScheduleObject extends BACnetObject {
             final SequenceOf<SpecialEvent> exceptionSchedule = value.getValue();
             for (final SpecialEvent specialEvent : exceptionSchedule) {
                 for (final TimeValue timeValue : specialEvent.getListOfTimeValues()) {
-                    if (scheduleDefault.getClass() != timeValue.getValue().getClass()) {
+                    if (!timeValue.getValue().getClass().equals(Null.class) && scheduleDefault.getClass() != timeValue.getValue().getClass()) {
                         throw new BACnetServiceException(ErrorClass.property, ErrorCode.invalidDataType);
                     }
                     if (!timeValue.getTime().isFullySpecified()) {
@@ -340,7 +341,12 @@ public class ScheduleObject extends BACnetObject {
                 }
 
                 // Determine the new present value.
-                if (currentTv == null)
+                // Our interpretation for ANSI/ASHRAE Standard 135-2016, 12.24.4 Present_Value
+                // When exception schedule with NULL values ignored then there is no possible way to deactivate schedules.
+                // Existing weekly schedule or another exception schedule with lower priority whose current value is not NULL will be used as present value.
+                // That makes allowing NULL values has no effect at all and functionally useless.
+                // This code should apply default schedule value to present value whenever effective schedule has NULL value.
+                if (currentTv == null || currentTv.getValue().getClass().equals(Null.class))
                     newValue = scheduleDefault;
                 else
                     newValue = currentTv.getValue();
