@@ -337,9 +337,10 @@ public class ScheduleObject extends BACnetObject {
                     final TimeValue tv = schedule.getBase1(tvIndex);
 
                     if (!tv.getTime().after(now.getTime())) {
-                        // Found a time value entry that can be used.
-                        currentTv = tv;
-                        break;
+                        // Find time value entry that should be used
+                        if (currentTv == null || tv.getTime().after(currentTv.getTime())) {
+                            currentTv = tv;
+                        }
                     }
                 }
 
