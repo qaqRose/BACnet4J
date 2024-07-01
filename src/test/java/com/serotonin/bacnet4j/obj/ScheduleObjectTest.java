@@ -263,6 +263,51 @@ public class ScheduleObjectTest extends AbstractTest {
     }
 
     @Test
+    public void changeDataType() throws Exception {
+        final AnalogValueObject av = new AnalogValueObject(d1, 0, "av0", 98, EngineeringUnits.amperes, false)
+                .supportCommandable(-2);
+        final BinaryValueObject bv = new BinaryValueObject(d1, 0, "bv0", BinaryPV.inactive, false);
+
+        final SequenceOf<SpecialEvent> binarySchedule = new SequenceOf<>(
+                new SpecialEvent(new CalendarEntry(new Date(-1, null, -1, DayOfWeek.WEDNESDAY)),
+                new SequenceOf<>(new TimeValue(new Time(d1), BinaryPV.active)), new UnsignedInteger(1))
+        );
+        final SequenceOf<SpecialEvent> analogSchedule = new SequenceOf<>(
+                new SpecialEvent(new CalendarEntry(new Date(-1, null, -1, DayOfWeek.WEDNESDAY)),
+                        new SequenceOf<>(new TimeValue(new Time(d1), new Real(2))), new UnsignedInteger(1))
+        );
+
+        final SequenceOf<DeviceObjectPropertyReference> binaryReferences = new SequenceOf<>(new DeviceObjectPropertyReference(1, bv.getId(), PropertyIdentifier.presentValue));
+        final SequenceOf<DeviceObjectPropertyReference> analogReferences = new SequenceOf<>(new DeviceObjectPropertyReference(1, av.getId(), PropertyIdentifier.presentValue));
+
+        final BinaryPV binaryDefaultValue = BinaryPV.inactive;
+        final Real analogDefaultValue = new Real(1);
+
+        final ScheduleObject so = new ScheduleObject(d1, 1, "sch0", new DateRange(Date.MINIMUM_DATE, Date.MAXIMUM_DATE), null,
+                binarySchedule, binaryDefaultValue, binaryReferences, 12, false);
+
+        Assert.assertEquals(binaryDefaultValue, so.readProperty(PropertyIdentifier.scheduleDefault));
+        Assert.assertEquals(binaryReferences, so.readProperty(PropertyIdentifier.listOfObjectPropertyReferences));
+
+        final List<PropertyValue> propertyValues = new ArrayList<>();
+        propertyValues.add(new PropertyValue(PropertyIdentifier.listOfObjectPropertyReferences, new SequenceOf<>())); // Reset listOfObjectPropertyReferences
+        propertyValues.add(new PropertyValue(PropertyIdentifier.scheduleDefault, new Null())); // Reset defaultSchedule
+        propertyValues.add(new PropertyValue(PropertyIdentifier.exceptionSchedule, new SequenceOf<>())); // Reset exceptionSchedule
+
+        // Change the data type later
+        propertyValues.add(new PropertyValue(PropertyIdentifier.exceptionSchedule, analogSchedule));
+        propertyValues.add(new PropertyValue(PropertyIdentifier.scheduleDefault, analogDefaultValue));
+        propertyValues.add(new PropertyValue(PropertyIdentifier.listOfObjectPropertyReferences, analogReferences));
+
+        final List<WriteAccessSpecification> specs = new ArrayList<>();
+        specs.add(new WriteAccessSpecification(new ObjectIdentifier(ObjectType.schedule, 1), new SequenceOf<>(propertyValues)));
+        d2.send(rd1, new WritePropertyMultipleRequest(new SequenceOf<>(specs))).get();
+
+        Assert.assertEquals(analogDefaultValue, so.readProperty(PropertyIdentifier.scheduleDefault));
+        Assert.assertEquals(analogReferences, so.readProperty(PropertyIdentifier.listOfObjectPropertyReferences));
+    }
+
+    @Test
     public void validations() throws Exception {
         final AnalogValueObject av = new AnalogValueObject(d2, 0, "av0", 98, EngineeringUnits.amperes, false)
                 .supportCommandable(-2);
