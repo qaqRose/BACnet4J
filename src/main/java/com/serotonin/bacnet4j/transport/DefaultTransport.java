@@ -302,6 +302,8 @@ public class DefaultTransport implements Transport, Runnable {
     @Override
     public void incoming(final NPDU npdu) {
         incoming.add(npdu);
+
+        // 通知消息处理
         ThreadUtils.notifySync(pauseLock);
     }
 

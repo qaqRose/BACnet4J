@@ -153,12 +153,18 @@ public class IpNetwork extends Network implements Runnable {
         return socket;
     }
 
+    /**
+     * 传输层初始化的时候，会执行network的初始化
+     * @param transport
+     * @throws Exception
+     */
     @Override
     public void initialize(final Transport transport) throws Exception {
         super.initialize(transport);
 
         localBindAddress = InetAddrCache.get(localBindAddressStr, port);
 
+        // 复用地址，都是用同一个端口号
         if (reuseAddress) {
             socket = new DatagramSocket(null);
             socket.setReuseAddress(true);
@@ -318,6 +324,11 @@ public class IpNetwork extends Network implements Runnable {
 
     //
     // For receiving
+
+    /***
+     * network网络层的业务
+     * 1.
+     */
     @Override
     public void run() {
         final byte[] buffer = new byte[MESSAGE_LENGTH];

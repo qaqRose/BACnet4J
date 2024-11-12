@@ -183,6 +183,13 @@ abstract public class Network {
         }
     }
 
+    /**
+     * 将数据报文包装 npdu
+     * @param queue
+     * @param linkService
+     * @return
+     * @throws Exception
+     */
     abstract protected NPDU handleIncomingDataImpl(ByteQueue queue, OctetString linkService) throws Exception;
 
     public NPDU parseNpduData(final ByteQueue queue, final OctetString linkService) throws MessageValidationException {

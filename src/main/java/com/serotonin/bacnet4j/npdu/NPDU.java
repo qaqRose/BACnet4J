@@ -35,6 +35,11 @@ import com.serotonin.bacnet4j.type.constructed.ServicesSupported;
 import com.serotonin.bacnet4j.type.primitive.OctetString;
 import com.serotonin.bacnet4j.util.sero.ByteQueue;
 
+/**
+ * 网络层数据单元
+ * Network Protocol Data Unit
+ * 包含ip头和传输信息
+ */
 public class NPDU {
     private final Address from;
     private final OctetString linkService;

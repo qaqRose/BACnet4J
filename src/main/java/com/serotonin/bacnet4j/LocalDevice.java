@@ -306,10 +306,20 @@ public class LocalDevice {
         return transport.getBytesIn();
     }
 
+    /**
+     * 初始化本地设备
+     */
     public synchronized LocalDevice initialize() throws Exception {
         return initialize(RestartReason.unknown);
     }
 
+    /**
+     * 初始化本地设备，
+     * 支持重启
+     * @param lastRestartReason
+     * @return
+     * @throws Exception
+     */
     public synchronized LocalDevice initialize(final RestartReason lastRestartReason) throws Exception {
         deviceObject.writePropertyInternal(PropertyIdentifier.lastRestartReason, lastRestartReason);
 

@@ -44,7 +44,7 @@ import com.serotonin.bacnet4j.type.primitive.OctetString;
 
 /**
  * Provides segmentation support for all data link types.
- *
+ * 为所有数据链接类型提供分段支持
  * @author Matthew
  */
 public interface Transport {
@@ -91,6 +91,11 @@ public interface Transport {
 
     Map<Integer, OctetString> getNetworkRouters();
 
+    /**
+     * 发送请求
+     * @param address
+     * @param service
+     */
     void send(Address address, UnconfirmedRequestService service);
 
     ServiceFuture send(Address address, int maxAPDULengthAccepted, Segmentation segmentationSupported,
@@ -99,5 +104,9 @@ public interface Transport {
     void send(Address address, int maxAPDULengthAccepted, Segmentation segmentationSupported,
             ConfirmedRequestService service, ResponseConsumer consumer);
 
+    /**
+     * 网络协议数据单元入库，等待业务处理
+     * @param npdu
+     */
     void incoming(NPDU npdu);
 }
